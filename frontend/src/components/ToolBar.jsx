@@ -7,7 +7,7 @@ import ButtonGroup from "./ButtonGroup/ButtonGroup";
 import NumberSelector from "./NumberSelector";
 
 
-const ToolBar = ({addMachine, addQueue}) => {
+const ToolBar = ({addMachine, addQueue, onClear}) => {
     const components = [
         { icon: MdFactory, text: "Machine", onClickAction:()=> addMachine() },
         { icon: AiFillFunnelPlot, text: "Queue", onClickAction:()=> addQueue() }
@@ -17,7 +17,7 @@ const ToolBar = ({addMachine, addQueue}) => {
         { icon: FaPlay, text: "", onClickAction:()=> alert("Simulate") },
         { icon: LuRefreshCw, text: "", onClickAction:()=> alert("Resimulate") },
         { icon: FaStop , text: "", onClickAction:()=> alert("Stop") },
-        { icon: FaDeleteLeft, text: "", onClickAction:()=> alert("Clear") },
+        { icon: FaDeleteLeft, text: "", onClickAction:()=> onClear() },
     ];
     return (
         <div className="w-full h-[50px] flex justify-evenly items-center shadow-lg absolute bg-white z-10">

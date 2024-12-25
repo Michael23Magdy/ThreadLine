@@ -51,6 +51,12 @@ const SimulationPage = ()=>{
         const new_id = `Q${queueCounter.current}`
         setNodes([...nodes, {id: new_id, type: 'queue', position: {x:0, y:0}, data:{number:0, id: new_id}}])
     }
+    const onClear = ()=>{
+        setNodes(initialNodes);
+        setEdges(initialEdges);
+        machineCounter.current=0;
+        queueCounter.current=0;
+    }
     
 
     const onConnect = useCallback((params) => {
@@ -66,7 +72,11 @@ const SimulationPage = ()=>{
         <>
             {console.log(nodes)}
             {console.log(edges)}
-            <ToolBar addMachine={addMachine} addQueue={addQueue}/>
+            <ToolBar 
+                addMachine={addMachine}
+                addQueue={addQueue}
+                onClear={onClear}    
+            />
             <div className={`w-full h-lvh bg-slate-100`}>
                 <ReactFlow
                     nodeTypes={nodeTypes}

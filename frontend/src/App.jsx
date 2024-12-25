@@ -1,11 +1,7 @@
-import './App.css'
+import SimulationPage from "./Pages/SimulationPage";
 
-function App() {
+export default function App() {
   return (
-    <>
-      
-    </>
-  )
+    <SimulationPage />
+  );
 }
-
-export default App

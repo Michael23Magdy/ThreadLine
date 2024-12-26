@@ -4,6 +4,8 @@ import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Data
@@ -16,6 +18,8 @@ public class Machine implements Runnable {
     private volatile boolean ready = true;
     private volatile boolean processing = false;
     private int currentQueueIndex = 0;
+    private final ExecutorService executor = Executors.newCachedThreadPool();
+    private ProductFetcher productFetcher;
 
     public String getId() {
         return id;
@@ -32,6 +36,7 @@ public class Machine implements Runnable {
     public synchronized void addInputQueue(Queue queue) {
         inputQueues.add(queue);
         queue.addConsumer(this);
+        productFetcher = new ProductFetcher(inputQueues, executor);
     }
 
     @Override
@@ -42,6 +47,12 @@ public class Machine implements Runnable {
                 if (productToProcess != null) {
                     System.out.println("Machine " + id + " is processing product " + productToProcess.getId());
                     processProduct(productToProcess);
+                }
+                else {
+                    synchronized (this) {
+                        System.out.println("Machine " + id + " is waiting for products...");
+                        wait(); // Wait until notified by the Queue
+                    }
                 }
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
@@ -54,11 +65,7 @@ public class Machine implements Runnable {
         if (!ready) {
             return null;
         }
-        currentProduct = fetchNextProduct();
-        if (currentProduct != null) {
-            processing = true;
-        }
-        return currentProduct;
+        return productFetcher.fetchNextProduct();
     }
 
     private synchronized void processProduct(Product product) throws InterruptedException {
@@ -71,23 +78,6 @@ public class Machine implements Runnable {
         currentProduct = null;
         processing = false;
         notifyAll();
-    }
-
-    private Product fetchNextProduct() {
-        if (inputQueues.isEmpty())
-            return null;
-
-        //* Round-robin selection
-        int attempts = 0;
-        while (attempts < inputQueues.size()) {
-            currentQueueIndex = (currentQueueIndex + 1) % inputQueues.size();
-            Queue queue = inputQueues.get(currentQueueIndex);
-            if (!queue.isEmpty()) {
-                return queue.consume();
-            }
-            attempts++;
-        }
-        return null;
     }
 
     public static int getMachineRunTime() {

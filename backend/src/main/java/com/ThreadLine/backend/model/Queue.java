@@ -29,8 +29,7 @@ public class Queue {
     public synchronized void addProduct(Product product) {
         System.out.println("Adding product: " + product.getId() + " to queue: " + id);
         products.add(product);
-        if (products.size() == 1)
-            notifyAll();
+        notifyAll();
     }
 
     public synchronized Product consume() {

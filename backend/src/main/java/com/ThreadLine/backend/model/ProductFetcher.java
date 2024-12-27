@@ -1,5 +1,6 @@
 package com.ThreadLine.backend.model;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.*;
@@ -17,37 +18,31 @@ public class ProductFetcher {
     }
 
     public Product fetchNextProduct() throws InterruptedException {
-        // Shared result and control flags
-        AtomicReference<Product> result = new AtomicReference<>(null);
-        AtomicBoolean productFound = new AtomicBoolean(false);
-        CountDownLatch latch = new CountDownLatch(inputQueues.size());
-
+        List<Future<Product>> futures = new ArrayList<>();
         for (Queue queue : inputQueues) {
-            executor.submit(() -> {
-                try {
-                    if (productFound.get()) {
-                        return; // Exit early if a product is found
-                    }
-
-                    Product product = null;
-                    synchronized (queue) {
-                        if (!queue.isEmpty()) {
-                            product = queue.consume(); // Consume a product if available
-                        }
-                    }
-
-                    if (product != null && productFound.compareAndSet(false, true)) {
-                        result.set(product); // Set the found product
-                    }
-                } finally {
-                    latch.countDown(); // Mark this thread as finished
-                }
-            });
+            Future<Product> future = executor.submit(queue::consume);
+            futures.add(future);
         }
 
-        // Wait for threads to finish or a product to be found
-        latch.await();
-        return result.get();
+        ExecutorCompletionService<Product> completionService = new ExecutorCompletionService<>(executor);
+        for (Future<Product> future : futures) {
+            completionService.submit(future::get); //* wait for future.get()
+        }
+        try {
+            //* take() waits for future completion
+            Future<Product> completedFuture = completionService.take();
+            Product product = completedFuture.get();
+
+            //! cancel other futures
+            for (Future<Product> future : futures) {
+                if (!future.isDone()) {
+                    future.cancel(true);
+                }
+            }
+            return product;
+        } catch (ExecutionException e) {
+            throw new RuntimeException("Error fetching product", e);
+        }
     }
 
     public void shutdown() {

@@ -16,7 +16,7 @@ public class Machine implements Runnable {
     private Queue outputQueue;
     private Product currentProduct;
     private volatile boolean ready = true;
-    private volatile boolean processing = false;
+    private volatile boolean running = true;
     private int currentQueueIndex = 0;
     private final ExecutorService executor = Executors.newCachedThreadPool();
     private ProductFetcher productFetcher;
@@ -41,31 +41,22 @@ public class Machine implements Runnable {
 
     @Override
     public void run() {
-        while (ready) {
+        if (productFetcher == null) {
+            productFetcher = new ProductFetcher(inputQueues, executor);
+        }
+        while (running) {
             try {
-                Product productToProcess = waitForProduct();
-                if (productToProcess != null) {
-                    System.out.println("Machine " + id + " is processing product " + productToProcess.getId());
-                    processProduct(productToProcess);
-                }
-                else {
-                    synchronized (this) {
-                        System.out.println("Machine " + id + " is waiting for products...");
-                        wait(); // Wait until notified by the Queue
-                    }
-                }
+                Product product = productFetcher.fetchNextProduct();
+                System.out.println("Machine " + id + " is processing product " + product.getId());
+                processProduct(product);
             } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                Thread.currentThread().interrupt();
+                System.out.println("Machine " + id + " was interrupted.");
+            } catch (Exception e) {
+                System.err.println("Error in machine " + id + ": " + e.getMessage());
             }
         }
-        System.out.println("Machine " + id + " is stopping.");
-    }
-
-    private synchronized Product waitForProduct() throws InterruptedException {
-        if (!ready) {
-            return null;
-        }
-        return productFetcher.fetchNextProduct();
+        System.out.println("Machine " + id + " has stopped.");
     }
 
     private synchronized void processProduct(Product product) throws InterruptedException {
@@ -75,9 +66,6 @@ public class Machine implements Runnable {
         if (outputQueue != null) {
             outputQueue.addProduct(product);
         }
-        currentProduct = null;
-        processing = false;
-        notifyAll();
     }
 
     public static int getMachineRunTime() {
@@ -85,16 +73,14 @@ public class Machine implements Runnable {
     }
 
     public void start() {
-        Thread thread = new Thread(this, id);
-        thread.start();
+        executor.execute(this);
     }
 
     public synchronized void stop() {
-        ready = false;
-        notifyAll();
-    }
-
-    public synchronized boolean isReady() {
-        return !ready && currentProduct == null;
+        running = false;
+        if (productFetcher != null) {
+            productFetcher.shutdown();
+        }
+        executor.shutdown();
     }
 }

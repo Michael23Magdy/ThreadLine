@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class ProductFetcher {
@@ -18,31 +17,32 @@ public class ProductFetcher {
     }
 
     public Product fetchNextProduct() throws InterruptedException {
-        List<Future<Product>> futures = new ArrayList<>();
+        AtomicReference<Product> fetchedProduct = new AtomicReference<>(null);
+        CountDownLatch productFound = new CountDownLatch(1);
+        List<Future<?>> futures = new ArrayList<>();
         for (Queue queue : inputQueues) {
-            Future<Product> future = executor.submit(queue::consume);
+            Future<?> future = executor.submit(() -> {
+                Product product = null;
+                try {
+                    product = queue.blockingPeek();
+                } catch (InterruptedException e) {
+                    System.out.println("couldn't peek from queue " + queue.getId());
+                    Thread.currentThread().interrupt();
+                }
+                if (product != null && fetchedProduct.compareAndSet(null, product)) {
+                    queue.consume();
+                    productFound.countDown();
+                }
+            });
             futures.add(future);
         }
 
-        ExecutorCompletionService<Product> completionService = new ExecutorCompletionService<>(executor);
-        for (Future<Product> future : futures) {
-            completionService.submit(future::get); //* wait for future.get()
-        }
-        try {
-            //* take() waits for future completion
-            Future<Product> completedFuture = completionService.take();
-            Product product = completedFuture.get();
+        productFound.await();
 
-            //! cancel other futures
-            for (Future<Product> future : futures) {
-                if (!future.isDone()) {
-                    future.cancel(true);
-                }
-            }
-            return product;
-        } catch (ExecutionException e) {
-            throw new RuntimeException("Error fetching product", e);
+        for (Future<?> future : futures) {
+            future.cancel(true);
         }
+        return fetchedProduct.get();
     }
 
     public void shutdown() {

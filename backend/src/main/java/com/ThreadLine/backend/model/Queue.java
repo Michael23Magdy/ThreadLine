@@ -7,21 +7,24 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.LinkedBlockingDeque;
 
 @Data
 public class Queue {
     private String id;
     //* built-in thread safety
-    private final BlockingQueue<Product> products = new LinkedBlockingQueue<>();
+    private final LinkedBlockingDeque<Product> products = new LinkedBlockingDeque<>();
     private Set<Machine> machines = new HashSet<>();
 
     public Queue(String id) {
         this.id = id;
     }
 
+    public String getId() {
+        return id;
+    }
+
     public synchronized void addConsumer(Machine machine) {
-        System.out.println("Adding consumer: " + machine.getId() + " for queue: " + id);
         machines.add(machine);
     }
 
@@ -31,7 +34,7 @@ public class Queue {
 
     public void addProduct(Product product) {
         try {
-            products.put(product);
+            products.putFirst(product);
             System.out.println("Added product: " + product.getId() + " to queue: " + id);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -41,7 +44,7 @@ public class Queue {
 
     public Product consume() {
         try {
-            Product product = products.take();
+            Product product = products.takeLast();
             System.out.println("Consumed product: " + product.getId() + " from queue: " + id);
             return product;
         } catch (InterruptedException e) {
@@ -51,8 +54,10 @@ public class Queue {
         }
     }
 
-    public boolean isEmpty() {
-        System.out.println("No products available for Machine " + Thread.currentThread().getName() + " for queue: " + id);
-        return products.isEmpty();
+    public synchronized Product blockingPeek() throws InterruptedException {
+        System.out.println(Thread.currentThread().getName() + " is peeking from queue: " + id);
+        Product product = products.takeLast();
+        products.putLast(product);
+        return product;
     }
 }

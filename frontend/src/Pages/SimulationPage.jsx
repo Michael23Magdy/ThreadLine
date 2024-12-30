@@ -46,11 +46,19 @@ const SimulationPage = ()=>{
         const new_id = `M${machineCounter.current}`
         setNodes([...nodes, {id: new_id, type: 'machine', position: {x:0, y:0}, data:{active:false, id: new_id}}])
     }
+
+    const editNode = (newData)=>{
+        setNodes((p)=>
+            p.map((node)=> node.id === newData.id ? {...node, data: newData} : node)
+        )
+    }
+
     const addQueue = ()=>{
         queueCounter.current++
         const new_id = `Q${queueCounter.current}`
         setNodes([...nodes, {id: new_id, type: 'queue', position: {x:0, y:0}, data:{count:0, id: new_id}}])
     }
+
     const onClear = ()=>{
         setNodes(initialNodes);
         setEdges(initialEdges);

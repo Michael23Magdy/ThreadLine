@@ -43,8 +43,8 @@ const SimulationPage = ()=>{
     const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
     const machineCounter = useRef(0);
     const queueCounter = useRef(0);
-
-    const ws = useWebSocket('http://localhost:8080/ws');
+    const ws = useWebSocket();
+    
     useEffect(() => {
         ws.setNodeEditHandler(editNode);
     }, []);
@@ -96,7 +96,7 @@ const SimulationPage = ()=>{
         const targetNode = nodes.find(node => node.id === params.target);
 
         if (sourceNode && targetNode && sourceNode.type !== targetNode.type) {
-            if(sourceNode.type == Types.machine && edges.find(edge => edge.source == sourceNode.id)){
+            if(sourceNode.type == Types.machine && edges.some(edge => edge.source == sourceNode.id)){
                 alert("machines can output to one queue");
                 return;
             }
@@ -111,9 +111,6 @@ const SimulationPage = ()=>{
 
     return(
         <>
-            {console.log(nodes)}
-            {console.log(edges)}
-            {/* <button onClick={()=>editNode({id:"Input", count:2})}>ssssssssss</button> */}
             <ToolBar 
                 addMachine={addMachine}
                 addQueue={addQueue}

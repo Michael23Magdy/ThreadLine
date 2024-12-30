@@ -1,34 +1,38 @@
 import { useEffect, useRef, useCallback } from 'react';
+import { Client } from '@stomp/stompjs';
 
-export const useWebSocket = (url) => {
-    const wsRef = useRef(null);
+export const useWebSocket = () => {
+    const clientRef = useRef(null);
     const nodeEditCallback = useRef(null);
 
     useEffect(() => {
-        wsRef.current = new WebSocket(url);
-
-        wsRef.current.onopen = () => {
-            console.log('WebSocket Connected');
-        };
-
-        wsRef.current.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-            if (data.type === 'NODE_EDIT' && nodeEditCallback.current) {
-                nodeEditCallback.current(data.payload);
+        clientRef.current = new Client({
+            brokerURL: 'ws://localhost:8080/ws',
+            onConnect: () => {
+                clientRef.current.subscribe('/topic/simulation', message => {
+                    const data = JSON.parse(message.body);
+                    if (nodeEditCallback.current) {
+                        nodeEditCallback.current(data);
+                    }
+                });
+                clientRef.current.publish({ 
+                    destination: '/app/subscribe',
+                    body: JSON.stringify({ action: 'subscribe' })
+                });
             }
-        };
+        });
 
-        return () => wsRef.current?.close();
-    }, [url]);
-
-    const sendMessage = useCallback((type, payload) => {
-        if (wsRef.current?.readyState === WebSocket.OPEN) {
-            wsRef.current.send(JSON.stringify({ type, payload }));
-        }
+        clientRef.current.activate();
+        return () => clientRef.current?.deactivate();
     }, []);
 
-    const setNodeEditHandler = useCallback((callback) => {
-        nodeEditCallback.current = callback;
+    const sendMessage = useCallback((type, payload) => {
+        if (clientRef.current?.connected) {
+            clientRef.current.publish({
+                destination: '/app/simulation',
+                body: JSON.stringify({ type, payload })
+            });
+        }
     }, []);
 
     return {
@@ -36,9 +40,9 @@ export const useWebSocket = (url) => {
         sendQueueCreated: (queue) => sendMessage('QUEUE_CREATED', queue),
         sendEdgeCreated: (edge) => sendMessage('EDGE_CREATED', edge),
         sendClear: () => sendMessage('CLEAR', null),
-        sendStartSimulation: (state) => sendMessage('START_SIMULATION', numProducts),
-        sendReSimulate: (state) => sendMessage('RESIMULATE', numProducts),
+        sendStartSimulation: (numProducts) => sendMessage('START_SIMULATION', numProducts),
+        sendReSimulate: (numProducts) => sendMessage('RESIMULATE', numProducts),
         sendStopSimulation: () => sendMessage('STOP_SIMULATION', null),
-        setNodeEditHandler
+        setNodeEditHandler: (callback) => { nodeEditCallback.current = callback; }
     };
 };

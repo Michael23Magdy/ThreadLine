@@ -14,11 +14,15 @@ public class Product {
         return id;
     }
 
+    public String getColor() {
+        return color;
+    }
 
     public Product() {
         this.id = UUID.randomUUID().toString();
         this.color = generateRandomColor();
     }
+
     public Product(String id) {
         this.id = id;
         this.color = generateRandomColor();

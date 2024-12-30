@@ -1,6 +1,11 @@
 package com.ThreadLine.backend.model;
 
+import com.ThreadLine.backend.dto.MachineUpdate;
+import com.ThreadLine.backend.observer.Publisher;
+import com.ThreadLine.backend.observer.Subscriber;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.Data;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,18 +13,16 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadLocalRandom;
 
-@Data
-public class Machine implements Runnable {
+public class Machine implements Runnable, Publisher {
 
     private String id;
     private List<Queue> inputQueues = new ArrayList<>();
     private Queue outputQueue;
     private Product currentProduct;
-    private volatile boolean ready = true;
     private volatile boolean running = true;
-    private int currentQueueIndex = 0;
     private final ExecutorService executor = Executors.newCachedThreadPool();
     private ProductFetcher productFetcher;
+    private Subscriber subscriber;
 
     public String getId() {
         return id;
@@ -29,8 +32,9 @@ public class Machine implements Runnable {
         this.outputQueue = outputQueue;
     }
 
-    public Machine(String id) {
+    public Machine(String id, Subscriber subscriber) {
         this.id = id;
+        this.subscriber = subscriber;
     }
 
     public synchronized void addInputQueue(Queue queue) {
@@ -46,9 +50,9 @@ public class Machine implements Runnable {
         }
         while (running) {
             try {
-                Product product = productFetcher.fetchNextProduct();
-                System.out.println("Machine " + id + " is processing product " + product.getId());
-                processProduct(product);
+                currentProduct = productFetcher.fetchNextProduct();
+                System.out.println("Machine " + id + " is processing product " + currentProduct.getId());
+                processProduct(currentProduct);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 System.out.println("Machine " + id + " was interrupted.");
@@ -59,13 +63,25 @@ public class Machine implements Runnable {
         System.out.println("Machine " + id + " has stopped.");
     }
 
-    private synchronized void processProduct(Product product) throws InterruptedException {
+    private synchronized void processProduct(Product product) throws InterruptedException, JsonProcessingException {
+        notifyWorking();
         int sleepTime = getMachineRunTime();
         System.out.println("Machine " + id + " is processing product " + product.getId() + " for " + sleepTime + "ms");
         Thread.sleep(sleepTime);
         if (outputQueue != null) {
             outputQueue.addProduct(product);
         }
+        notifyFinished();
+    }
+
+    private void notifyWorking() throws JsonProcessingException {
+        MachineUpdate update = new MachineUpdate(id, true, currentProduct.getColor());
+        subscriber.notify(update);
+    }
+
+    private void notifyFinished() throws JsonProcessingException {
+        MachineUpdate update = new MachineUpdate(id, false, null);
+        subscriber.notify(update);
     }
 
     public static int getMachineRunTime() {

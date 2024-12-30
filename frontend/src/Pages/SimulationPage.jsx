@@ -14,18 +14,20 @@ import ToolBar from '../components/ToolBar';
 import Machine from '../components/CustomNodes/Machine';
 import Queue from '../components/CustomNodes/Queue';
 import ProductionLine from '../components/CustomEdges/ProductionLine';
+import { IDs } from '../constants/IDs';
+import { Types } from '../constants/Types';
 
 const initialNodes = [
     {
-        id: 'Input',
-        type: 'queue',
+        id: IDs.input,
+        type: Types.queue,
         deletable: false,
         position: { x: -300, y: 0 },
         data: { count: 0, id: 'Input' },
     },
     {
-        id: 'Output',
-        type: 'queue',
+        id: IDs.output,
+        type: Types.queue,
         deletable: false,
         position: { x: 300, y: 0 },
         data: { count: 0, id: 'Output' },
@@ -44,7 +46,7 @@ const SimulationPage = ()=>{
     const addMachine = ()=>{
         machineCounter.current++
         const new_id = `M${machineCounter.current}`
-        setNodes([...nodes, {id: new_id, type: 'machine', position: {x:0, y:0}, data:{active:false, id: new_id}}])
+        setNodes([...nodes, {id: new_id, type: Types.machine, position: {x:0, y:0}, data:{active:false, id: new_id}}])
     }
 
     const editNode = (newData)=>{
@@ -56,7 +58,7 @@ const SimulationPage = ()=>{
     const addQueue = ()=>{
         queueCounter.current++
         const new_id = `Q${queueCounter.current}`
-        setNodes([...nodes, {id: new_id, type: 'queue', position: {x:0, y:0}, data:{count:0, id: new_id}}])
+        setNodes([...nodes, {id: new_id, type: Types.queue, position: {x:0, y:0}, data:{count:0, id: new_id}}])
     }
 
     const onClear = ()=>{
@@ -71,7 +73,11 @@ const SimulationPage = ()=>{
         const sourceNode = nodes.find(node => node.id === params.source);
         const targetNode = nodes.find(node => node.id === params.target);
         if (sourceNode && targetNode && sourceNode.type !== targetNode.type) {
-            setEdges(eds => addEdge({ ...params, type: 'production-line', animated: true }, eds));
+            if(sourceNode.type == Types.machine && edges.find(edge => edge.source == sourceNode.id)){
+                alert("machines can output to one queue")
+            } else {
+                setEdges(eds => addEdge({ ...params, type: 'production-line', animated: true }, eds));
+            }
         } else {
             alert("can't connect "+sourceNode.type+" to a "+ targetNode.type);  
         }
@@ -80,6 +86,7 @@ const SimulationPage = ()=>{
         <>
             {console.log(nodes)}
             {console.log(edges)}
+            {/* <button onClick={()=>editNode({id:"Input", count:2})}>ssssssssss</button> */}
             <ToolBar 
                 addMachine={addMachine}
                 addQueue={addQueue}

@@ -13,7 +13,7 @@ const Queue = ({ data }) => {
       {(data.id != IDs.input) && <Handle type="target" position={Position.Left} style={{border: '2px solid black', background: 'white',}} />}
       <div className={`w-16 h-8 relative group rounded-lg border-2 border-solid border-black flex items-center justify-evenly bg-zinc-500 p-2`}>
         <AiFillFunnelPlot /> 
-        <span className='text-md font-semibold'>{data.number}</span>  
+        <span className='text-md font-semibold'>{data.count}</span>  
         <span className='hidden group-hover:block absolute bg-blue-500 text-white top-8 text-xs rounded-md p-1'>{data.id}</span>
 
       </div>

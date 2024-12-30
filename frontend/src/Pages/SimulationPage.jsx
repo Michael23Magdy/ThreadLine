@@ -21,14 +21,14 @@ const initialNodes = [
         type: 'queue',
         deletable: false,
         position: { x: -300, y: 0 },
-        data: { number: 0, id: 'Input' },
+        data: { count: 0, id: 'Input' },
     },
     {
         id: 'Output',
         type: 'queue',
         deletable: false,
         position: { x: 300, y: 0 },
-        data: { number: 0, id: 'Output' },
+        data: { count: 0, id: 'Output' },
     }
 ];
 const initialEdges = [];
@@ -49,7 +49,7 @@ const SimulationPage = ()=>{
     const addQueue = ()=>{
         queueCounter.current++
         const new_id = `Q${queueCounter.current}`
-        setNodes([...nodes, {id: new_id, type: 'queue', position: {x:0, y:0}, data:{number:0, id: new_id}}])
+        setNodes([...nodes, {id: new_id, type: 'queue', position: {x:0, y:0}, data:{count:0, id: new_id}}])
     }
     const onClear = ()=>{
         setNodes(initialNodes);

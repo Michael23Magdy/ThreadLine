@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import {
   ReactFlow,
   MiniMap,
@@ -16,6 +16,7 @@ import Queue from '../components/CustomNodes/Queue';
 import ProductionLine from '../components/CustomEdges/ProductionLine';
 import { IDs } from '../constants/IDs';
 import { Types } from '../constants/Types';
+import { useWebSocket } from '../hooks/useWebSocket';
 
 const initialNodes = [
     {
@@ -43,45 +44,71 @@ const SimulationPage = ()=>{
     const machineCounter = useRef(0);
     const queueCounter = useRef(0);
 
-    const addMachine = ()=>{
-        machineCounter.current++
-        const new_id = `M${machineCounter.current}`
-        setNodes([...nodes, {id: new_id, type: Types.machine, position: {x:0, y:0}, data:{active:false, id: new_id}}])
-    }
+    const ws = useWebSocket('http://localhost:8080/ws');
+    useEffect(() => {
+        ws.setNodeEditHandler(editNode);
+    }, []);
 
-    const editNode = (newData)=>{
-        setNodes((p)=>
-            p.map((node)=> node.id === newData.id ? {...node, data: newData} : node)
-        )
+    const addMachine = ()=>{
+        machineCounter.current++;
+        const newMachine = {
+            id: `M${machineCounter.current}`,
+            type: Types.machine,
+            position: { x: 0, y: 0 },
+            data: { active: false, id: `M${machineCounter.current}` }
+        };
+        setNodes(nodes => [...nodes, newMachine]);
+        ws.sendMachineCreated(newMachine);
     }
 
     const addQueue = ()=>{
-        queueCounter.current++
-        const new_id = `Q${queueCounter.current}`
-        setNodes([...nodes, {id: new_id, type: Types.queue, position: {x:0, y:0}, data:{count:0, id: new_id}}])
+        queueCounter.current++;
+        const newQueue = {
+            id: `Q${queueCounter.current}`,
+            type: Types.queue,
+            position: { x: 0, y: 0 },
+            data: { count: 0, id: `Q${queueCounter.current}` }
+        };
+        setNodes(nodes => [...nodes, newQueue]);
+        ws.sendQueueCreated(newQueue);
     }
-
-    const onClear = ()=>{
+    
+    const editNode = (newData)=>{
+        setNodes(nodes=>
+            nodes.map(node => node.id === newData.id ? {...node, data: newData} : node)
+        )
+    }
+    
+    const startSimulation = () => ws.sendStartSimulation({ nodes, edges });
+    const reSimulate = () => ws.sendReSimulate({ nodes, edges });
+    const stopSimulation = () => ws.sendStopSimulation();
+    const onClear = () => {
         setNodes(initialNodes);
-        setEdges(initialEdges);
-        machineCounter.current=0;
-        queueCounter.current=0;
-    }
+        setEdges([]);
+        machineCounter.current = 0;
+        queueCounter.current = 0;
+        ws.sendClear();
+    };
     
 
     const onConnect = useCallback((params) => {
         const sourceNode = nodes.find(node => node.id === params.source);
         const targetNode = nodes.find(node => node.id === params.target);
+
         if (sourceNode && targetNode && sourceNode.type !== targetNode.type) {
             if(sourceNode.type == Types.machine && edges.find(edge => edge.source == sourceNode.id)){
-                alert("machines can output to one queue")
-            } else {
-                setEdges(eds => addEdge({ ...params, type: 'production-line', animated: true }, eds));
+                alert("machines can output to one queue");
+                return;
             }
+            const newEdge = { ...params, type: 'production-line', animated: true };
+            setEdges(eds => addEdge(newEdge, eds));
+            ws.sendEdgeCreated(newEdge);
+            
         } else {
             alert("can't connect "+sourceNode.type+" to a "+ targetNode.type);  
         }
     }, [nodes, edges, setEdges]);
+
     return(
         <>
             {console.log(nodes)}
@@ -90,7 +117,10 @@ const SimulationPage = ()=>{
             <ToolBar 
                 addMachine={addMachine}
                 addQueue={addQueue}
-                onClear={onClear}    
+                onClear={onClear}
+                startSimulation={startSimulation}
+                reSimulate={reSimulate}
+                stopSimulation={stopSimulation}  
             />
             <div className={`w-full h-lvh bg-slate-100`}>
                 <ReactFlow

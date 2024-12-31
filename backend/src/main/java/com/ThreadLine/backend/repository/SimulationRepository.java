@@ -71,7 +71,7 @@ public class SimulationRepository {
         machines.values().forEach(Machine::start);
         Queue input = queues.get("Input");
         for (int i = 1; i <= products; i++) {
-            int sleepTime = ThreadLocalRandom.current().nextInt(5000, 10000);
+            int sleepTime = ThreadLocalRandom.current().nextInt(5000, 25000);
             System.out.println("Next product coming after " + sleepTime + "ms");
             try {
                 Thread.sleep(sleepTime);

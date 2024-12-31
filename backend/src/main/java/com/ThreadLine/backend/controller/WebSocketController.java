@@ -16,7 +16,7 @@ public class WebSocketController {
         this.initializer = initializer;
     }
 
-    public void sendProductionUpdate(String message) {
+    public synchronized void sendProductionUpdate(String message) {
         messagingTemplate.convertAndSend("/topic/simulation", message);
     }
 

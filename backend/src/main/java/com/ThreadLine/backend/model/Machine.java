@@ -75,7 +75,7 @@ public class Machine implements Runnable, Publisher {
     }
 
     public static int getMachineRunTime() {
-        return ThreadLocalRandom.current().nextInt(5000, 10000);
+        return ThreadLocalRandom.current().nextInt(5000, 25000);
     }
 
     public void start() {

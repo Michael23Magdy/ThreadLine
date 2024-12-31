@@ -30,7 +30,7 @@ public class ProductFetcher {
                     Thread.currentThread().interrupt();
                 }
                 if (product != null && fetchedProduct.compareAndSet(null, product)) {
-                    queue.consume();
+                    fetchedProduct.set(queue.consume());
                     productFound.countDown();
                 }
             });

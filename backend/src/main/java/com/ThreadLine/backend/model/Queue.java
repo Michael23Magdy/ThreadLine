@@ -22,8 +22,8 @@ public class Queue implements Publisher {
 
     public void addProduct(Product product) {
         try {
+            notifySubscribers(products.size() + 1);
             products.putFirst(product);
-            notifySubscribers();
             System.out.println("Added product: " + product.getId() + " to queue: " + id);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -35,8 +35,8 @@ public class Queue implements Publisher {
 
     public synchronized Product consume() {
         try {
+            notifySubscribers(products.size() - 1);
             Product product = products.takeLast();
-            notifySubscribers();
             System.out.println(Thread.currentThread().getName() + " consumed product: " + product.getId() + " from queue: " + id);
             return product;
         } catch (InterruptedException e) {
@@ -55,8 +55,8 @@ public class Queue implements Publisher {
         return product;
     }
 
-    private void notifySubscribers() throws JsonProcessingException {
-        QueueUpdate queueUpdate = new QueueUpdate(id, products.size());
+    private void notifySubscribers(int currentSize) throws JsonProcessingException {
+        QueueUpdate queueUpdate = new QueueUpdate(id, currentSize);
         subscriber.notify(queueUpdate);
     }
 }

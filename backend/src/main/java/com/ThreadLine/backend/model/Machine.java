@@ -2,10 +2,9 @@ package com.ThreadLine.backend.model;
 
 import com.ThreadLine.backend.dto.MachineUpdate;
 import com.ThreadLine.backend.observer.Publisher;
-import com.ThreadLine.backend.observer.Subscriber;
+import com.ThreadLine.backend.observer.WebSocketSubscriber;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.Data;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +12,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadLocalRandom;
 
+@Data
 public class Machine implements Runnable, Publisher {
 
     private String id;
@@ -22,17 +22,9 @@ public class Machine implements Runnable, Publisher {
     private volatile boolean running = true;
     private final ExecutorService executor = Executors.newCachedThreadPool();
     private ProductFetcher productFetcher;
-    private Subscriber subscriber;
+    private WebSocketSubscriber subscriber;
 
-    public String getId() {
-        return id;
-    }
-
-    public void setOutputQueue(Queue outputQueue) {
-        this.outputQueue = outputQueue;
-    }
-
-    public Machine(String id, Subscriber subscriber) {
+    public Machine(String id, WebSocketSubscriber subscriber) {
         this.id = id;
         this.subscriber = subscriber;
     }
@@ -51,7 +43,6 @@ public class Machine implements Runnable, Publisher {
         while (running) {
             try {
                 currentProduct = productFetcher.fetchNextProduct();
-                System.out.println("Machine " + id + " is processing product " + currentProduct.getId());
                 processProduct(currentProduct);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
@@ -64,9 +55,9 @@ public class Machine implements Runnable, Publisher {
     }
 
     private synchronized void processProduct(Product product) throws InterruptedException, JsonProcessingException {
-        notifyWorking();
         int sleepTime = getMachineRunTime();
         System.out.println("Machine " + id + " is processing product " + product.getId() + " for " + sleepTime + "ms");
+        notifyWorking();
         Thread.sleep(sleepTime);
         if (outputQueue != null) {
             outputQueue.addProduct(product);

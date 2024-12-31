@@ -1,29 +1,30 @@
 package com.ThreadLine.backend.controller;
 
-import com.ThreadLine.backend.service.SimulationInitializer;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.stereotype.Controller;
+import com.ThreadLine.backend.repository.SimulationRepository;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-@Controller
+@RestController
+@RequestMapping("/api/simulation")
 public class SimulationController {
-    private final SimpMessagingTemplate messagingTemplate;
-    private final SimulationInitializer initializer;
+    private final SimulationRepository simulationRepository;
 
-    public SimulationController(SimpMessagingTemplate messagingTemplate, SimulationInitializer initializer) {
-        this.messagingTemplate = messagingTemplate;
-        this.initializer = initializer;
+    public SimulationController(SimulationRepository simulationRepository) {
+        this.simulationRepository = simulationRepository;
     }
 
-    public void sendProductionUpdate(String message) {
-        messagingTemplate.convertAndSend("/topic/simulation", message);
+    @PostMapping("/initialize")
+    public ResponseEntity<?> initializeSimulation(@RequestBody SimulationRepository.SimulationConfig config) {
+        simulationRepository.initialize(config);
+        return ResponseEntity.ok().build();
     }
 
-    @MessageMapping("/subscribe")
-    @SendTo("/topic/simulation")
-    public String handleSubscription(String message) {
-        initializer.start();
-        return "Subscribed Successfully";
+    @PostMapping("/start")
+    public ResponseEntity<?> startSimulation() {
+        simulationRepository.start();
+        return ResponseEntity.ok().build();
     }
 }

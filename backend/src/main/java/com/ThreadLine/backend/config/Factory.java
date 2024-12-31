@@ -3,14 +3,14 @@ package com.ThreadLine.backend.config;
 
 import com.ThreadLine.backend.model.Machine;
 import com.ThreadLine.backend.model.Queue;
-import com.ThreadLine.backend.service.SimulationService;
+import com.ThreadLine.backend.service.WebSocketService;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class Factory {
-    private final SimulationService simulationService;
+    private final WebSocketService simulationService;
 
-    public Factory(SimulationService simulationService) {
+    public Factory(WebSocketService simulationService) {
         this.simulationService = simulationService;
     }
 

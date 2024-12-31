@@ -2,10 +2,9 @@ package com.ThreadLine.backend.model;
 
 import com.ThreadLine.backend.dto.QueueUpdate;
 import com.ThreadLine.backend.observer.Publisher;
-import com.ThreadLine.backend.observer.Subscriber;
+import com.ThreadLine.backend.observer.WebSocketSubscriber;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.Data;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -17,15 +16,11 @@ public class Queue implements Publisher {
     //* built-in thread safety
     private final LinkedBlockingDeque<Product> products = new LinkedBlockingDeque<>();
     private Set<Machine> machines = new HashSet<>();
-    private Subscriber subscriber;
+    private WebSocketSubscriber subscriber;
 
-    public Queue(String id, Subscriber subscriber) {
+    public Queue(String id, WebSocketSubscriber subscriber) {
         this.id = id;
         this.subscriber = subscriber;
-    }
-
-    public String getId() {
-        return id;
     }
 
     public synchronized void addConsumer(Machine machine) {
@@ -49,7 +44,7 @@ public class Queue implements Publisher {
         }
     }
 
-    public Product consume() {
+    public synchronized Product consume() {
         try {
             Product product = products.takeLast();
             notifySubscribers();

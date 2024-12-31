@@ -1,6 +1,7 @@
 package com.ThreadLine.backend.model;
 
 import lombok.Data;
+import lombok.Getter;
 
 import java.util.Random;
 import java.util.UUID;
@@ -9,14 +10,6 @@ import java.util.UUID;
 public class Product {
     private String id;
     private String color;
-
-    public String getId() {
-        return id;
-    }
-
-    public String getColor() {
-        return color;
-    }
 
     public Product() {
         this.id = UUID.randomUUID().toString();

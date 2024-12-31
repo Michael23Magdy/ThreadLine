@@ -75,6 +75,10 @@ const SimulationPage = ()=>{
     }
     
     const editNode = (newData)=>{
+        if(newData.type == Types.machine)
+            console.log("------"+newData.type+": "+newData.id+", active: "+newData.active);
+        else 
+            console.log(newData.type+": "+newData.id+", count: "+newData.count);
         setNodes(nodes=>
             nodes.map(node => node.id === newData.id ? {...node, data: newData} : node)
         )

@@ -6,7 +6,6 @@ import { extractEdges, extractMachines, extractQueues } from './mappers';
 const handleRequest = async (requestPromise) => {
     try {
         const response = await requestPromise;
-        console.log(response.data);
         return response.data;
     } catch (error) {
         console.log(error);
@@ -32,7 +31,6 @@ const useSendControls = () => {
         edges: edgeDtos,
         products: numProducts
     }
-    console.log(request);
     return handleRequest(api.post('/start', request));
   }, [api]);
 

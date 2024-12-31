@@ -30,10 +30,3 @@ export const useWebSocket = () => {
         setNodeEditHandler: (callback) => { nodeEditCallback.current = callback; }
     };
 };
-
-// {
-//     machine: ["M1", "M2"],
-//     queue: ["Q1", "Q2"],
-//     edges: [{source: "M1", target: "Q2"}]
-//     products: 3
-// }

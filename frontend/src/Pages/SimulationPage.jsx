@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ReactFlow,
   MiniMap,
@@ -17,6 +17,7 @@ import ProductionLine from '../components/CustomEdges/ProductionLine';
 import { IDs } from '../constants/IDs';
 import { Types } from '../constants/Types';
 import { useWebSocket } from '../hooks/useWebSocket';
+import useSendControls from '../hooks/useSendControls';
 
 const initialNodes = [
     {
@@ -41,9 +42,11 @@ const nodeTypes = { machine: Machine, queue: Queue }
 const SimulationPage = ()=>{
     const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
     const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+    const [running, setRunning] = useState(false);
     const machineCounter = useRef(0);
     const queueCounter = useRef(0);
     const ws = useWebSocket();
+    const api = useSendControls();
     
     useEffect(() => {
         ws.setNodeEditHandler(editNode);
@@ -58,7 +61,6 @@ const SimulationPage = ()=>{
             data: { active: false, id: `M${machineCounter.current}` }
         };
         setNodes(nodes => [...nodes, newMachine]);
-        ws.sendMachineCreated(newMachine);
     }
 
     const addQueue = ()=>{
@@ -70,7 +72,6 @@ const SimulationPage = ()=>{
             data: { count: 0, id: `Q${queueCounter.current}` }
         };
         setNodes(nodes => [...nodes, newQueue]);
-        ws.sendQueueCreated(newQueue);
     }
     
     const editNode = (newData)=>{
@@ -79,15 +80,15 @@ const SimulationPage = ()=>{
         )
     }
     
-    const startSimulation = () => ws.sendStartSimulation({ nodes, edges });
-    const reSimulate = () => ws.sendReSimulate({ nodes, edges });
-    const stopSimulation = () => ws.sendStopSimulation();
+    const startSimulation = (numProducts) => api.sendStartSimulation({ nodes, edges, numProducts });
+    const reSimulate = (numProducts) => api.sendReSimulate(numProducts);
+    const stopSimulation = () => api.sendStopSimulation();
     const onClear = () => {
         setNodes(initialNodes);
         setEdges([]);
         machineCounter.current = 0;
         queueCounter.current = 0;
-        ws.sendClear();
+        api.sendClear();
     };
     
 
@@ -101,9 +102,7 @@ const SimulationPage = ()=>{
                 return;
             }
             const newEdge = { ...params, type: 'production-line', animated: true };
-            setEdges(eds => addEdge(newEdge, eds));
-            ws.sendEdgeCreated(newEdge);
-            
+            setEdges(eds => addEdge(newEdge, eds));            
         } else {
             alert("can't connect "+sourceNode.type+" to a "+ targetNode.type);  
         }

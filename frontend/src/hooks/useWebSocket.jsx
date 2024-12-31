@@ -26,23 +26,14 @@ export const useWebSocket = () => {
         return () => clientRef.current?.deactivate();
     }, []);
 
-    const sendMessage = useCallback((type, payload) => {
-        if (clientRef.current?.connected) {
-            clientRef.current.publish({
-                destination: '/app/simulation',
-                body: JSON.stringify({ type, payload })
-            });
-        }
-    }, []);
-
     return {
-        sendMachineCreated: (machine) => sendMessage('MACHINE_CREATED', machine),
-        sendQueueCreated: (queue) => sendMessage('QUEUE_CREATED', queue),
-        sendEdgeCreated: (edge) => sendMessage('EDGE_CREATED', edge),
-        sendClear: () => sendMessage('CLEAR', null),
-        sendStartSimulation: (numProducts) => sendMessage('START_SIMULATION', numProducts),
-        sendReSimulate: (numProducts) => sendMessage('RESIMULATE', numProducts),
-        sendStopSimulation: () => sendMessage('STOP_SIMULATION', null),
         setNodeEditHandler: (callback) => { nodeEditCallback.current = callback; }
     };
 };
+
+// {
+//     machine: ["M1", "M2"],
+//     queue: ["Q1", "Q2"],
+//     edges: [{source: "M1", target: "Q2"}]
+//     products: 3
+// }

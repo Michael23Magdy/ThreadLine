@@ -16,15 +16,9 @@ public class SimulationController {
         this.simulationRepository = simulationRepository;
     }
 
-    @PostMapping("/initialize")
-    public ResponseEntity<?> initializeSimulation(@RequestBody SimulationRepository.SimulationConfig config) {
-        simulationRepository.initialize(config);
-        return ResponseEntity.ok().build();
-    }
-
     @PostMapping("/start")
-    public ResponseEntity<?> startSimulation() {
-        simulationRepository.start();
+    public ResponseEntity<?> initializeSimulation(@RequestBody SimulationRepository.SimulationConfig config) {
+        simulationRepository.initialize(config).start();
         return ResponseEntity.ok().build();
     }
 }

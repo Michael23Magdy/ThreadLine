@@ -37,12 +37,13 @@ public class SimulationRepository {
         private String target;
     }
 
-    public void initialize(SimulationConfig config) {
+    public SimulationRepository initialize(SimulationConfig config) {
         clearSimulation();
         createMachines(config.getMachine());
         createQueues(config.getQueue());
         createConnections(config.getEdges());
         this.products = config.getProducts();
+        return this;
     }
 
     private void createMachines(List<String> machineIds) {

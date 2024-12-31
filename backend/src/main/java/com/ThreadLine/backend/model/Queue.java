@@ -6,8 +6,6 @@ import com.ThreadLine.backend.observer.WebSocketSubscriber;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.Data;
 
-import java.util.HashSet;
-import java.util.Set;
 import java.util.concurrent.LinkedBlockingDeque;
 
 @Data
@@ -15,20 +13,11 @@ public class Queue implements Publisher {
     private String id;
     //* built-in thread safety
     private final LinkedBlockingDeque<Product> products = new LinkedBlockingDeque<>();
-    private Set<Machine> machines = new HashSet<>();
     private WebSocketSubscriber subscriber;
 
     public Queue(String id, WebSocketSubscriber subscriber) {
         this.id = id;
         this.subscriber = subscriber;
-    }
-
-    public synchronized void addConsumer(Machine machine) {
-        machines.add(machine);
-    }
-
-    public synchronized void removeConsumer(Machine machine) {
-        machines.remove(machine);
     }
 
     public void addProduct(Product product) {

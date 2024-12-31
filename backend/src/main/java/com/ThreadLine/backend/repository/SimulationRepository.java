@@ -25,8 +25,8 @@ public class SimulationRepository {
 
     @Data
     public static class SimulationConfig {
-        private List<String> machine;
-        private List<String> queue;
+        private List<String> machines;
+        private List<String> queues;
         private List<Edge> edges;
         private int products;
     }
@@ -39,8 +39,8 @@ public class SimulationRepository {
 
     public SimulationRepository initialize(SimulationConfig config) {
         clearSimulation();
-        createMachines(config.getMachine());
-        createQueues(config.getQueue());
+        createMachines(config.getMachines());
+        createQueues(config.getQueues());
         createConnections(config.getEdges());
         this.products = config.getProducts();
         return this;

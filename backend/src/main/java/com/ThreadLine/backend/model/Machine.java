@@ -31,7 +31,6 @@ public class Machine implements Runnable, Publisher {
 
     public synchronized void addInputQueue(Queue queue) {
         inputQueues.add(queue);
-        queue.addConsumer(this);
         productFetcher = new ProductFetcher(inputQueues, executor);
     }
 

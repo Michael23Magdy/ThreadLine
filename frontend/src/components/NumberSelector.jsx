@@ -3,12 +3,13 @@ import ButtonComponent from "./ButtonGroup/ButtonComponent";
 
 const NumberSelector = ({ value, onChange }) => {
     const increase = () => onChange(value + 1);
-    const decrease = () => onChange(Math.max(0, value - 1));
+    const decrease = () => onChange(Math.max(1, value - 1));
 
     return (
         <div className="inline-flex items-center rounded-md shadow-sm">
             <ButtonComponent
               icon={{icon: FaMinus}.icon}
+              active={value!=1}
               position={'left'}
               onClickAction={decrease}
             />
@@ -16,6 +17,7 @@ const NumberSelector = ({ value, onChange }) => {
                 {value}
             </div>
             <ButtonComponent
+              active={true}
               icon={{icon: FaPlus}.icon}
               position={'right'}
               onClickAction={increase}

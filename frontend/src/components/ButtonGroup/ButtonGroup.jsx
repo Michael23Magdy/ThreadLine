@@ -15,6 +15,7 @@ const ButtonGroup = ({ buttons }) => {
               icon={button.icon}
               text={button.text}
               position={position}
+              active={button.active}
               onClickAction={button.onClickAction}
             />
           );

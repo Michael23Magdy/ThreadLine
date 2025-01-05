@@ -7,7 +7,7 @@ import { useState } from "react";
 import ButtonGroup from "./ButtonGroup/ButtonGroup";
 import NumberSelector from "./NumberSelector";
 
-const ToolBar = ({addMachine, addQueue, onClear, startSimulation, reSimulate, stopSimulation}) => {
+const ToolBar = ({addMachine, addQueue, startSimulation, replaySimulation, pauseSimulation, resumeSimulation, clearSimulation}) => {
     const [numProducts, setNumProducts] = useState(1);
     
     const components = [
@@ -17,9 +17,9 @@ const ToolBar = ({addMachine, addQueue, onClear, startSimulation, reSimulate, st
     
     const controls = [
         { icon: FaPlay, text: "", onClickAction:()=> startSimulation(numProducts) },
-        { icon: LuRefreshCw, text: "", onClickAction:()=> reSimulate(numProducts) },
-        { icon: FaStop , text: "", onClickAction:()=> stopSimulation() },
-        { icon: FaDeleteLeft, text: "", onClickAction:()=> onClear() },
+        { icon: LuRefreshCw, text: "", onClickAction:()=> replaySimulation(numProducts) },
+        { icon: FaStop , text: "", onClickAction:()=> pauseSimulation() },
+        { icon: FaDeleteLeft, text: "", onClickAction:()=> clearSimulation() },
     ];
 
     return (

@@ -34,24 +34,30 @@ const useSendControls = () => {
     return handleRequest(api.post('/start', request));
   }, [api]);
 
-  const sendReSimulate = useCallback((Products) => {
-    return handleRequest(api.post('/reSimulate', Products));
+  const sendReplaySimulation = useCallback((Products) => {
+    return handleRequest(api.post('/replay', Products));
   }, [api]);
 
-  const sendStopSimulation = useCallback(() => {
-    return handleRequest(api.post('/stop'));
+  const sendPauseSimulation = useCallback(() => {
+    return handleRequest(api.post('/pause'));
+  }, [api]);
+  
+  const sendResumeSimulation = useCallback(() => {
+    return handleRequest(api.post('/resume'));
   }, [api]);
 
-  const sendClear = useCallback(() => {
+  const sendClearSimulation = useCallback(() => {
     return handleRequest(api.post('/clear'));
   }, [api]);
+
 
   // Return the functions so they can be used by components
   return {
     sendStartSimulation,
-    sendReSimulate,
-    sendStopSimulation,
-    sendClear
+    sendReplaySimulation,
+    sendPauseSimulation,
+    sendResumeSimulation,
+    sendClearSimulation
   };
 };
 

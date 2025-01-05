@@ -85,14 +85,15 @@ const SimulationPage = ()=>{
     }
     
     const startSimulation = (numProducts) => api.sendStartSimulation({ nodes, edges, numProducts });
-    const reSimulate = (numProducts) => api.sendReSimulate(numProducts);
-    const stopSimulation = () => api.sendStopSimulation();
-    const onClear = () => {
+    const replaySimulation = (numProducts) => api.sendReplaySimulation(numProducts);
+    const pauseSimulation = () => api.sendPauseSimulation();
+    const reusmeSimulation = () => api.sendResumeSimulation();
+    const clearSimulation = () => {
         setNodes(initialNodes);
         setEdges([]);
         machineCounter.current = 0;
         queueCounter.current = 0;
-        api.sendClear();
+        api.sendClearSimulation();
     };
     
 
@@ -117,10 +118,12 @@ const SimulationPage = ()=>{
             <ToolBar 
                 addMachine={addMachine}
                 addQueue={addQueue}
-                onClear={onClear}
+
                 startSimulation={startSimulation}
-                reSimulate={reSimulate}
-                stopSimulation={stopSimulation}  
+                replaySimulation={replaySimulation}
+                pauseSimulation={pauseSimulation}
+                resumeSimulation={reusmeSimulation}
+                clearSimulation={clearSimulation}
             />
             <div className={`w-full h-lvh bg-slate-100`}>
                 <ReactFlow

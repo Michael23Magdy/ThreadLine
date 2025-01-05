@@ -87,7 +87,10 @@ const SimulationPage = ()=>{
     }
     const resetNodes = ()=>{
         const resetedNodes = nodes.map((node)=>{
-            if(node.type == Types.machine) node.data.active = false;
+            if(node.type == Types.machine) {
+                node.data.active = false;
+                node.data.color = null;
+            }
             else node.data.count = 0;
             return node
         });
@@ -104,8 +107,8 @@ const SimulationPage = ()=>{
     }
     const replaySimulation = (numProducts) => {
         setSimulationState(SimulationStates.running);
-        resetNodes();
         api.sendReplaySimulation(numProducts);
+        resetNodes();
     }
     const pauseSimulation = () => {
         setSimulationState(SimulationStates.paused)
@@ -124,8 +127,8 @@ const SimulationPage = ()=>{
     };
     const resetSimulation = () => {
         setSimulationState(SimulationStates.compose)
-        resetNodes()
         api.sendClearSimulation();
+        resetNodes()
     }
 
     

@@ -47,7 +47,7 @@ const useSendControls = () => {
   }, [api]);
 
   const sendClearSimulation = useCallback(() => {
-    return handleRequest(api.post('/clear'));
+    return handleRequest(api.delete('/clear'));
   }, [api]);
 
 

@@ -1,6 +1,8 @@
 package com.ThreadLine.backend.repository;
 
 import com.ThreadLine.backend.config.Factory;
+import com.ThreadLine.backend.memento.SimulationCaretaker;
+import com.ThreadLine.backend.memento.SimulationMemento;
 import com.ThreadLine.backend.model.Machine;
 import com.ThreadLine.backend.model.Product;
 import com.ThreadLine.backend.model.Queue;
@@ -18,6 +20,7 @@ public class SimulationRepository {
     private final Map<String, Machine> machines = new HashMap<>();
     private final Map<String, Queue> queues = new HashMap<>();
     private int products = 0;
+    private final SimulationCaretaker caretaker = new SimulationCaretaker();
 
     public SimulationRepository(Factory factory) {
         this.factory = factory;
@@ -37,12 +40,46 @@ public class SimulationRepository {
         private String target;
     }
 
+    public void pause() {
+        caretaker.savePauseMemento(saveState());
+        stopAllMachines();
+    }
+
+    public void resume() {
+        SimulationMemento memento = caretaker.getPauseMemento();
+        if (memento != null) {
+            restoreState(memento);
+            startAllMachines();
+        }
+    }
+
+    public void replay() {
+        stopAllMachines();
+        SimulationMemento memento = caretaker.getStartMemento();
+        if (memento != null) {
+            restoreState(memento);
+            startAllMachines();
+        }
+    }
+
+    public SimulationMemento saveState() {
+        return new SimulationMemento(new HashMap<>(machines), new HashMap<>(queues), products);
+    }
+
+    public void restoreState(SimulationMemento memento) {
+        clearSimulation();
+        machines.putAll(memento.machines());
+        queues.putAll(memento.queues());
+        this.products = memento.products();
+    }
+
     public SimulationRepository initialize(SimulationConfig config) {
         clearSimulation();
         createMachines(config.getMachines());
         createQueues(config.getQueues());
         createConnections(config.getEdges());
         this.products = config.getProducts();
+        caretaker.saveStartMemento(saveState());
         return this;
     }
 
@@ -70,7 +107,8 @@ public class SimulationRepository {
         }
         machines.values().forEach(Machine::start);
         Queue input = queues.get("Input");
-        for (int i = 1; i <= products; i++) {
+        int counter = 1;
+        while (products != 0) {
             int sleepTime = ThreadLocalRandom.current().nextInt(5000, 25000);
             System.out.println("Next product coming after " + sleepTime + "ms");
             try {
@@ -78,15 +116,23 @@ public class SimulationRepository {
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
-            input.addProduct(new Product("P" + i));
+            input.addProduct(new Product("P" + counter));
+            products--;
         }
     }
-
 
     private void clearSimulation() {
         machines.values().forEach(Machine::stop);
         machines.clear();
         queues.clear();
+    }
+
+    private void stopAllMachines() {
+        machines.values().forEach(Machine::stop);
+    }
+
+    private void startAllMachines() {
+        machines.values().forEach(Machine::start);
     }
 
 }

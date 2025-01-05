@@ -21,4 +21,22 @@ public class SimulationController {
         simulationRepository.initialize(config).start();
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/replay")
+    public ResponseEntity<?> replaySimulation() {
+        simulationRepository.replay();
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/pause")
+    public ResponseEntity<?> pauseSimulation() {
+        simulationRepository.pause();
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/resume")
+    public ResponseEntity<?> resumeSimulation() {
+        simulationRepository.resume();
+        return ResponseEntity.ok().build();
+    }
 }

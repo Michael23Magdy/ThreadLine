@@ -1,8 +1,8 @@
 package com.ThreadLine.backend.service;
 
 import com.ThreadLine.backend.controller.WebSocketController;
-import com.ThreadLine.backend.dto.QueueUpdate;
 import com.ThreadLine.backend.dto.SimulationEvent;
+import com.ThreadLine.backend.exception.wrapper.JsonProcessingExceptionWrapper;
 import com.ThreadLine.backend.observer.WebSocketSubscriber;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,9 +24,13 @@ public class WebSocketService implements WebSocketSubscriber {
         this.objectMapper = objectMapper;
     }
 
-    public synchronized void notify(SimulationEvent simulationEvent) throws JsonProcessingException {
-        System.out.println("Sending update: " + objectMapper.writeValueAsString(simulationEvent));
-        messageQueue.add(simulationEvent);
+    public synchronized void notify(SimulationEvent simulationEvent) {
+        try {
+            System.out.println("Sending update: " + objectMapper.writeValueAsString(simulationEvent));
+            messageQueue.add(simulationEvent);
+        } catch (JsonProcessingException e) {
+            throw new JsonProcessingExceptionWrapper("Failed to serialize simulation event", e);
+        }
     }
 
     @PostConstruct
@@ -39,7 +43,7 @@ public class WebSocketService implements WebSocketSubscriber {
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 } catch (JsonProcessingException e) {
-                    throw new RuntimeException(e);
+                    throw new JsonProcessingExceptionWrapper("Failed to serialize simulation event", e);
                 }
             }
         }).start();

@@ -1,6 +1,7 @@
 package com.ThreadLine.backend.model;
 
 import com.ThreadLine.backend.dto.MachineUpdate;
+import com.ThreadLine.backend.exception.internal.MachineOperationException;
 import com.ThreadLine.backend.observer.Publisher;
 import com.ThreadLine.backend.observer.WebSocketSubscriber;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -45,9 +46,9 @@ public class Machine implements Runnable, Publisher {
                 processProduct(currentProduct);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                System.out.println("Machine " + id + " was interrupted.");
+                throw new MachineOperationException("Machine " + id + " was interrupted.");
             } catch (Exception e) {
-                System.err.println("Error in machine " + id + ": " + e.getMessage());
+                throw new MachineOperationException("Error in machine " + id + ": " + e.getMessage());
             }
         }
         System.out.println("Machine " + id + " has stopped.");
@@ -64,12 +65,12 @@ public class Machine implements Runnable, Publisher {
         notifyFinished();
     }
 
-    private void notifyWorking() throws JsonProcessingException {
+    private void notifyWorking() {
         MachineUpdate update = new MachineUpdate(id, true, currentProduct.getColor());
         subscriber.notify(update);
     }
 
-    private void notifyFinished() throws JsonProcessingException {
+    private void notifyFinished() {
         MachineUpdate update = new MachineUpdate(id, false, null);
         subscriber.notify(update);
     }

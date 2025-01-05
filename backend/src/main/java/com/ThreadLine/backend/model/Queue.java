@@ -1,9 +1,9 @@
 package com.ThreadLine.backend.model;
 
 import com.ThreadLine.backend.dto.QueueUpdate;
+import com.ThreadLine.backend.exception.internal.QueueOperationException;
 import com.ThreadLine.backend.observer.Publisher;
 import com.ThreadLine.backend.observer.WebSocketSubscriber;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.Data;
 
 import java.util.concurrent.LinkedBlockingDeque;
@@ -27,9 +27,7 @@ public class Queue implements Publisher {
             System.out.println("Added product: " + product.getId() + " to queue: " + id);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            System.out.println("Failed to add product to queue: " + id);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            throw new QueueOperationException("Failed to add product to queue: " + id);
         }
     }
 
@@ -41,10 +39,7 @@ public class Queue implements Publisher {
             return product;
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            System.out.println(Thread.currentThread().getName() + " Failed to consume product from queue: " + id);
-            return null;
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            throw new QueueOperationException(" Failed to consume product from queue: " + id);
         }
     }
 
@@ -55,7 +50,7 @@ public class Queue implements Publisher {
         return product;
     }
 
-    private void notifySubscribers(int currentSize) throws JsonProcessingException {
+    private void notifySubscribers(int currentSize) {
         QueueUpdate queueUpdate = new QueueUpdate(id, currentSize);
         subscriber.notify(queueUpdate);
     }

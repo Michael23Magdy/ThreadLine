@@ -88,11 +88,10 @@ const SimulationPage = ()=>{
     const resetNodes = ()=>{
         const resetedNodes = nodes.map((node)=>{
             if(node.type == Types.machine) {
-                node.data.active = false;
-                node.data.color = null;
+                return { ...node, data: { ...node.data, active: false, color: null } };
+            } else {
+                return { ...node, data: { ...node.data, count: 0 } };
             }
-            else node.data.count = 0;
-            return node
         });
         setNodes(resetedNodes);
     }

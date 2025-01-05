@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Repository
@@ -48,16 +49,16 @@ public class SimulationRepository {
     public void resume() {
         SimulationMemento memento = caretaker.getPauseMemento();
         if (memento != null) {
-            restoreState(memento);
+            restoreState(memento, null);
             startAllMachines();
         }
     }
 
-    public void replay() {
+    public void replay(int initialProducts) {
         stopAllMachines();
         SimulationMemento memento = caretaker.getStartMemento();
         if (memento != null) {
-            restoreState(memento);
+            restoreState(memento, null);
             startAllMachines();
         }
     }
@@ -66,11 +67,11 @@ public class SimulationRepository {
         return new SimulationMemento(new HashMap<>(machines), new HashMap<>(queues), products);
     }
 
-    public void restoreState(SimulationMemento memento) {
+    public void restoreState(SimulationMemento memento, Integer modifiedProductsCount) {
         clearSimulation();
         machines.putAll(memento.machines());
         queues.putAll(memento.queues());
-        this.products = memento.products();
+        this.products = Objects.requireNonNullElseGet(modifiedProductsCount, memento::products);
     }
 
     public SimulationRepository initialize(SimulationConfig config) {
@@ -121,7 +122,7 @@ public class SimulationRepository {
         }
     }
 
-    private void clearSimulation() {
+    public void clearSimulation() {
         machines.values().forEach(Machine::stop);
         machines.clear();
         queues.clear();

@@ -46,6 +46,6 @@ public class ProductFetcher {
     }
 
     public void shutdown() {
-        executor.shutdown();
+        executor.shutdownNow();
     }
 }

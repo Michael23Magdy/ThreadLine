@@ -9,10 +9,10 @@ import lombok.Data;
 import java.util.concurrent.LinkedBlockingDeque;
 
 @Data
-public class Queue implements Publisher {
+public class Queue implements Publisher, Cloneable {
     private String id;
     //* built-in thread safety
-    private final LinkedBlockingDeque<Product> products = new LinkedBlockingDeque<>();
+    private LinkedBlockingDeque<Product> products = new LinkedBlockingDeque<>();
     private WebSocketSubscriber subscriber;
 
     public Queue(String id, WebSocketSubscriber subscriber) {
@@ -53,5 +53,19 @@ public class Queue implements Publisher {
     private void notifySubscribers(int currentSize) {
         QueueUpdate queueUpdate = new QueueUpdate(id, currentSize);
         subscriber.notify(queueUpdate);
+    }
+
+    @Override
+    public Queue clone() {
+        try {
+            Queue clone = (Queue) super.clone();
+            clone.products = new LinkedBlockingDeque<>();
+            for (Product product : products) {
+                clone.products.add(product.clone());
+            }
+            return clone;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to clone Queue", e);
+        }
     }
 }

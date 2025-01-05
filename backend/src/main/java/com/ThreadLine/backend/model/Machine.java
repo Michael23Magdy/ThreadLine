@@ -4,7 +4,6 @@ import com.ThreadLine.backend.dto.MachineUpdate;
 import com.ThreadLine.backend.exception.internal.MachineOperationException;
 import com.ThreadLine.backend.observer.Publisher;
 import com.ThreadLine.backend.observer.WebSocketSubscriber;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -14,14 +13,14 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Data
-public class Machine implements Runnable, Publisher {
+public class Machine implements Runnable, Publisher, Cloneable {
 
     private String id;
     private List<Queue> inputQueues = new ArrayList<>();
     private Queue outputQueue;
     private Product currentProduct;
     private volatile boolean running = true;
-    private final ExecutorService executor = Executors.newCachedThreadPool();
+    private ExecutorService executor = Executors.newCachedThreadPool();
     private ProductFetcher productFetcher;
     private WebSocketSubscriber subscriber;
 
@@ -42,7 +41,9 @@ public class Machine implements Runnable, Publisher {
         }
         while (running) {
             try {
-                currentProduct = productFetcher.fetchNextProduct();
+                if (currentProduct == null) {
+                    currentProduct = productFetcher.fetchNextProduct();
+                }
                 processProduct(currentProduct);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
@@ -54,15 +55,27 @@ public class Machine implements Runnable, Publisher {
         System.out.println("Machine " + id + " has stopped.");
     }
 
-    private synchronized void processProduct(Product product) throws InterruptedException, JsonProcessingException {
-        int sleepTime = getMachineRunTime();
-        System.out.println("Machine " + id + " is processing product " + product.getId() + " for " + sleepTime + "ms");
+    private void processProduct(Product product) throws InterruptedException {
+        int remainingSleepTime = getMachineRunTime();
+
+        System.out.println("Machine " + id + " is processing product " + product.getId() + " for " + remainingSleepTime + "ms");
         notifyWorking();
-        Thread.sleep(sleepTime);
-        if (outputQueue != null) {
-            outputQueue.addProduct(product);
+
+        while (running && remainingSleepTime > 0) {
+            long sleepInterval = Math.min(100, remainingSleepTime);
+            Thread.sleep(sleepInterval);
+            remainingSleepTime -= (int) sleepInterval;
         }
-        notifyFinished();
+
+        if (running) {
+            synchronized (this) {
+                if (outputQueue != null) {
+                    outputQueue.addProduct(product);
+                }
+            }
+            currentProduct = null;
+            notifyFinished();
+        }
     }
 
     private void notifyWorking() {
@@ -80,14 +93,41 @@ public class Machine implements Runnable, Publisher {
     }
 
     public void start() {
+        running = true;
+        currentProduct = null;
+        if (executor.isShutdown()) {
+            executor = Executors.newCachedThreadPool();
+            if (productFetcher != null) {
+                productFetcher = new ProductFetcher(inputQueues, executor);
+            }
+        }
         executor.execute(this);
     }
 
     public synchronized void stop() {
+        System.out.println("Stopping Machine " + id);
         running = false;
         if (productFetcher != null) {
             productFetcher.shutdown();
         }
-        executor.shutdown();
+        executor.shutdownNow();
+        Thread.currentThread().interrupt();
+    }
+
+    @Override
+    public Machine clone() {
+        try {
+            Machine clone = (Machine) super.clone();
+            clone.inputQueues = new ArrayList<>();
+            for (Queue queue : inputQueues) {
+                clone.inputQueues.add(queue.clone());
+            }
+            clone.currentProduct = currentProduct == null ? null : currentProduct.clone();
+            clone.executor = Executors.newCachedThreadPool();
+            clone.productFetcher = new ProductFetcher(clone.inputQueues, clone.executor);
+            return clone;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to clone Machine", e);
+        }
     }
 }

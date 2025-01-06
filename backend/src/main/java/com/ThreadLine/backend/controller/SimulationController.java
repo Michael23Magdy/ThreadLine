@@ -27,7 +27,7 @@ public class SimulationController {
         if (config.getEdges() == null || config.getEdges().isEmpty()) {
             throw new InvalidSimulationConfigException("Edges list cannot be empty");
         }
-        simulationRepository.initialize(config).start(true);
+        simulationRepository.initialize(config).start();
         return ResponseEntity.ok().build();
     }
 

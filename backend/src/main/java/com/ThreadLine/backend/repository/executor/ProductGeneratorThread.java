@@ -19,7 +19,7 @@ public class ProductGeneratorThread extends Thread {
     public void run() {
         while (stateManager.getProductCount() > 0 && isRunningSupplier.get()) {
             try {
-                int sleepTime = ThreadLocalRandom.current().nextInt(5000, 25000);
+                int sleepTime = ThreadLocalRandom.current().nextInt(5000, 10000);
                 System.out.println("Next product coming after " + sleepTime + " ms");
                 Thread.sleep(sleepTime);
 

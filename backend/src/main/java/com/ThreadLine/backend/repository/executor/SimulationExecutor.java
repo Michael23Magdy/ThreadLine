@@ -20,6 +20,7 @@ public class SimulationExecutor {
 
     public void start(boolean reset) {
         if (stateManager.getProductCount() == 0) return;
+        isRunning = true;
         machinesState.startAllMachines(reset);
         startProductGenerator();
     }

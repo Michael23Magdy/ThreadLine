@@ -10,7 +10,6 @@ import lombok.Data;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
@@ -54,7 +53,7 @@ public class SimulationRepository {
         SimulationMemento memento = caretaker.getPauseMemento();
         if (memento != null) {
             restoreState(memento, null);
-            start();
+            start(true);
         }
     }
 
@@ -63,8 +62,8 @@ public class SimulationRepository {
         isRunning = true;
         SimulationMemento memento = caretaker.getStartMemento();
         if (memento != null) {
-            restoreState(memento, null);
-            start();
+            restoreState(memento, initialProducts);
+            start(false);
         }
     }
 
@@ -117,11 +116,11 @@ public class SimulationRepository {
         });
     }
 
-    public void start() {
+    public void start(boolean continueSimulation) {
         if (products == 0) {
             return;
         }
-        machines.values().forEach(Machine::start);
+        machines.values().forEach(machine -> machine.start(!continueSimulation));
         productGeneratorThread = new Thread(() -> {
             Queue input = queues.get("Input");
             int counter = 1;
@@ -163,5 +162,4 @@ public class SimulationRepository {
         }
         machines.values().forEach(Machine::stop);
     }
-
 }

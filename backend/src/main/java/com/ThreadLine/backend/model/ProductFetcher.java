@@ -25,13 +25,13 @@ public class ProductFetcher {
                 Product product = null;
                 try {
                     product = queue.blockingPeek();
+                    if (product != null && fetchedProduct.compareAndSet(null, product)) {
+                        fetchedProduct.set(queue.consume());
+                        productFound.countDown();
+                    }
                 } catch (InterruptedException e) {
                     System.out.println("couldn't peek from queue " + queue.getId());
                     Thread.currentThread().interrupt();
-                }
-                if (product != null && fetchedProduct.compareAndSet(null, product)) {
-                    fetchedProduct.set(queue.consume());
-                    productFound.countDown();
                 }
             });
             futures.add(future);

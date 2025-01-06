@@ -92,9 +92,9 @@ public class Machine implements Runnable, Publisher, Cloneable {
         return ThreadLocalRandom.current().nextInt(5000, 25000);
     }
 
-    public void start() {
+    public void start(boolean replay) {
         running = true;
-        currentProduct = null;
+        currentProduct = replay ? null : currentProduct;
         if (executor.isShutdown()) {
             executor = Executors.newCachedThreadPool();
             if (productFetcher != null) {

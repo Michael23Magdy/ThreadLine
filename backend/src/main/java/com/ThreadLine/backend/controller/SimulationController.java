@@ -26,12 +26,12 @@ public class SimulationController {
         if (config.getEdges() == null || config.getEdges().isEmpty()) {
             throw new InvalidSimulationConfigException("Edges list cannot be empty");
         }
-        simulationRepository.initialize(config).start();
+        simulationRepository.initialize(config).start(false);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/replay")
-    public ResponseEntity<?> replaySimulation(int products) {
+    public ResponseEntity<?> replaySimulation(@RequestParam(name = "products", required = true) int products) {
         simulationRepository.replay(products);
         return ResponseEntity.ok().build();
     }
@@ -49,7 +49,7 @@ public class SimulationController {
     }
 
     @DeleteMapping("/clear")
-    public ResponseEntity<?> clearSimulation(){
+    public ResponseEntity<?> clearSimulation() {
         simulationRepository.clearSimulation();
         return ResponseEntity.ok().build();
     }

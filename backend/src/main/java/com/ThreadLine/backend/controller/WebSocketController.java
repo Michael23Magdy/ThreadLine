@@ -23,7 +23,6 @@ public class WebSocketController {
     @MessageMapping("/subscribe")
     @SendTo("/topic/simulation")
     public String handleSubscription(String message) {
-        initializer.start();
         return "Subscribed Successfully";
     }
 }

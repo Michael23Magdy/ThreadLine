@@ -1,4 +1,4 @@
-package com.ThreadLine.backend.dto;
+package com.ThreadLine.backend.dto.events;
 
 public class QueueUpdate extends SimulationEvent {
     private int count;

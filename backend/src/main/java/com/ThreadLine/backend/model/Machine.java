@@ -1,6 +1,6 @@
 package com.ThreadLine.backend.model;
 
-import com.ThreadLine.backend.dto.MachineUpdate;
+import com.ThreadLine.backend.dto.events.MachineUpdate;
 import com.ThreadLine.backend.exception.internal.MachineOperationException;
 import com.ThreadLine.backend.observer.Publisher;
 import com.ThreadLine.backend.observer.WebSocketSubscriber;
@@ -92,9 +92,9 @@ public class Machine implements Runnable, Publisher, Cloneable {
         return ThreadLocalRandom.current().nextInt(5000, 25000);
     }
 
-    public void start(boolean replay) {
+    public void start(boolean reset) {
         running = true;
-        currentProduct = replay ? null : currentProduct;
+        currentProduct = reset ? null : currentProduct;
         if (executor.isShutdown()) {
             executor = Executors.newCachedThreadPool();
             if (productFetcher != null) {

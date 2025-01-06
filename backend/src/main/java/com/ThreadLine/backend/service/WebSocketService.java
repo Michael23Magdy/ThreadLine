@@ -1,7 +1,7 @@
 package com.ThreadLine.backend.service;
 
 import com.ThreadLine.backend.controller.WebSocketController;
-import com.ThreadLine.backend.dto.SimulationEvent;
+import com.ThreadLine.backend.dto.events.SimulationEvent;
 import com.ThreadLine.backend.exception.wrapper.JsonProcessingExceptionWrapper;
 import com.ThreadLine.backend.observer.WebSocketSubscriber;
 import com.fasterxml.jackson.core.JsonProcessingException;

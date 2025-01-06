@@ -1,6 +1,6 @@
 package com.ThreadLine.backend.model;
 
-import com.ThreadLine.backend.dto.QueueUpdate;
+import com.ThreadLine.backend.dto.events.QueueUpdate;
 import com.ThreadLine.backend.exception.internal.QueueOperationException;
 import com.ThreadLine.backend.observer.Publisher;
 import com.ThreadLine.backend.observer.WebSocketSubscriber;
@@ -22,8 +22,8 @@ public class Queue implements Publisher, Cloneable {
 
     public void addProduct(Product product) {
         try {
+            notifySubscribers(products.size() + 1);
             products.putFirst(product);
-            notifySubscribers(products.size());
             System.out.println("Added product: " + product.getId() + " to queue: " + id);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -50,7 +50,7 @@ public class Queue implements Publisher, Cloneable {
         return product;
     }
 
-    private synchronized void notifySubscribers(int currentSize) {
+    private void notifySubscribers(int currentSize) {
         QueueUpdate queueUpdate = new QueueUpdate(id, currentSize);
         subscriber.notify(queueUpdate);
     }

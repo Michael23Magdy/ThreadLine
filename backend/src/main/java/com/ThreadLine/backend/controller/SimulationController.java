@@ -1,5 +1,6 @@
 package com.ThreadLine.backend.controller;
 
+import com.ThreadLine.backend.dto.config.SimulationConfig;
 import com.ThreadLine.backend.exception.internal.InvalidSimulationConfigException;
 import com.ThreadLine.backend.repository.SimulationRepository;
 import org.apache.coyote.Response;
@@ -16,7 +17,7 @@ public class SimulationController {
     }
 
     @PostMapping("/start")
-    public ResponseEntity<?> initializeSimulation(@RequestBody SimulationRepository.SimulationConfig config) {
+    public ResponseEntity<?> initializeSimulation(@RequestBody SimulationConfig config) {
         if (config.getMachines() == null || config.getMachines().isEmpty()) {
             throw new InvalidSimulationConfigException("Machines list cannot be empty");
         }
@@ -26,7 +27,7 @@ public class SimulationController {
         if (config.getEdges() == null || config.getEdges().isEmpty()) {
             throw new InvalidSimulationConfigException("Edges list cannot be empty");
         }
-        simulationRepository.initialize(config).start(false);
+        simulationRepository.initialize(config).start(true);
         return ResponseEntity.ok().build();
     }
 

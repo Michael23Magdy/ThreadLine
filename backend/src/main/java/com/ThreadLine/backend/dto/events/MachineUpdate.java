@@ -1,4 +1,4 @@
-package com.ThreadLine.backend.dto;
+package com.ThreadLine.backend.dto.events;
 
 public class MachineUpdate extends SimulationEvent {
     private boolean active;

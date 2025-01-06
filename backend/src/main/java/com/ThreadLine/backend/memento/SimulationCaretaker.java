@@ -1,8 +1,10 @@
 package com.ThreadLine.backend.memento;
 
 import lombok.Getter;
+import org.springframework.stereotype.Component;
 
 @Getter
+@Component
 public class SimulationCaretaker {
     private SimulationMemento startMemento;
     private SimulationMemento pauseMemento;

@@ -35,7 +35,7 @@ const useSendControls = () => {
   }, [api]);
 
   const sendReplaySimulation = useCallback((Products) => {
-    return handleRequest(api.post(`/replay/?products=${Products}`));
+    return handleRequest(api.post(`/replay?products=${Products}`));
   }, [api]);
 
   const sendPauseSimulation = useCallback(() => {

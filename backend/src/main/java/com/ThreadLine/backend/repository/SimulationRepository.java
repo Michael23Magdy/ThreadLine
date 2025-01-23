@@ -1,15 +1,12 @@
 package com.ThreadLine.backend.repository;
 
 import com.ThreadLine.backend.dto.config.SimulationConfig;
-import com.ThreadLine.backend.model.Product;
-import com.ThreadLine.backend.model.Queue;
 import com.ThreadLine.backend.repository.connection.ConnectionManager;
 import com.ThreadLine.backend.repository.executor.SimulationExecutor;
 import com.ThreadLine.backend.repository.state.SimulationStateManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
-import java.util.concurrent.ThreadLocalRandom;
 
 @Repository
 @RequiredArgsConstructor

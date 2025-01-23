@@ -89,7 +89,7 @@ public class Machine implements Runnable, Publisher, Cloneable {
     }
 
     public static int getMachineRunTime() {
-        return ThreadLocalRandom.current().nextInt(5000, 15000);
+        return ThreadLocalRandom.current().nextInt(3000, 10000);
     }
 
     public void start(boolean reset) {

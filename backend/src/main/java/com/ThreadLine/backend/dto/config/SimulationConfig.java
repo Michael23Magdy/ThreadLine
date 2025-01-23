@@ -1,6 +1,5 @@
 package com.ThreadLine.backend.dto.config;
 
-import com.ThreadLine.backend.repository.SimulationRepository;
 import lombok.Data;
 
 import java.util.List;

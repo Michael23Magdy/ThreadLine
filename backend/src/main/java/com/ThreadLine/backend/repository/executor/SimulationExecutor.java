@@ -1,13 +1,11 @@
 package com.ThreadLine.backend.repository.executor;
 
-import com.ThreadLine.backend.model.Queue;
 import com.ThreadLine.backend.repository.state.MachineStateHolder;
 import com.ThreadLine.backend.repository.state.QueueStateHolder;
 import com.ThreadLine.backend.repository.state.SimulationStateManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.util.concurrent.ThreadLocalRandom;
 
 @Component
 @RequiredArgsConstructor

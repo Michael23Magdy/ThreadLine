@@ -3,7 +3,6 @@ package com.ThreadLine.backend.controller;
 import com.ThreadLine.backend.dto.config.SimulationConfig;
 import com.ThreadLine.backend.exception.internal.InvalidSimulationConfigException;
 import com.ThreadLine.backend.repository.SimulationRepository;
-import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

@@ -1,7 +1,6 @@
 package com.ThreadLine.backend.model;
 
 import lombok.Data;
-import lombok.Getter;
 
 import java.util.Random;
 import java.util.UUID;

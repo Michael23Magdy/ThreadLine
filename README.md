@@ -1,4 +1,4 @@
-# ThreadLine: Producer/Consumer Simulation System 🏭
+****# ThreadLine: Producer/Consumer Simulation System 🏭
 
 <div align="center">
 
@@ -44,18 +44,6 @@ A real-time assembly line simulation system featuring multi-threaded processing,
 </video>
     <!-- ![Demo]() -->
 </div>
-
-## 📸 Screenshots
-
-<div align="center">
-
-### Initial Setup
-![Initial Setup](placeholder-for-initial-setup.png)
-
-### Configuration
-![Configuration](placeholder-for-configuration.png)
-
-### Running Simulation
 ![Running Simulation](placeholder-for-running-simulation.png)
 
 </div>

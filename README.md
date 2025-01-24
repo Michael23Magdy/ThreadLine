@@ -1,4 +1,4 @@
-****# ThreadLine: Producer/Consumer Simulation System 🏭
+# ThreadLine: Producer/Consumer Simulation System 🏭
 
 <div align="center">
 
@@ -39,12 +39,11 @@ A real-time assembly line simulation system featuring multi-threaded processing,
 ## 🎥 Demo
 
 <div align="center">
-<video controls>
-  <source src="./out/media/DEMO.mp4" type="video/mp4">
-</video>
-    <!-- ![Demo]() -->
+  <video controls>
+    <source src="./media/DEMO.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
 </div>
-![Running Simulation](placeholder-for-running-simulation.png)
 
 </div>
 
@@ -54,150 +53,9 @@ A real-time assembly line simulation system featuring multi-threaded processing,
 
 <details>
 <summary>Click to expand UML Diagram</summary>
-
-```plantuml
-@startuml
-
-skinparam class {
-    BackgroundColor White
-    ArrowColor Black
-    BorderColor Black
-}
-
-skinparam stereotypeCBackgroundColor LightBlue
-skinparam packageBackgroundColor LightGray
-
-package "Observer Pattern" {
-    interface Publisher {
-        + attach(subscriber: WebSocketSubscriber)
-        + detach(subscriber: WebSocketSubscriber)
-        + notifySubscribers()
-    }
-
-    interface WebSocketSubscriber {
-        + notify(event: SimulationEvent)
-    }
-
-    class WebSocketService {
-        - simulationController: WebSocketController
-        - messageQueue: BlockingQueue<SimulationEvent>
-        + notify(event: SimulationEvent)
-        + init()
-    }
-}
-
-package "Factory Pattern" {
-    class Factory {
-        - webSocketService: WebSocketService
-        + createMachine(id: String): Machine
-        + createQueue(id: String): Queue
-    }
-}
-
-package "Prototype Pattern" {
-    interface Cloneable {
-        + clone(): Object
-    }
-
-    class Machine {
-        - id: String
-        - inputQueues: List<Queue>
-        - outputQueue: Queue
-        - currentProduct: Product
-        - running: boolean
-        + addInputQueue(queue: Queue)
-        + run()
-        + start(boolean)
-        + stop()
-        + clone(): Machine
-    }
-
-    class Queue {
-        - id: String
-        - products: LinkedBlockingDeque<Product>
-        + addProduct(product: Product)
-        + consume(): Product
-        + clone(): Queue
-    }
-
-    class Product {
-        - id: String
-        - color: String
-        - generateRandomColor()
-        + clone(): Product
-    }
-}
-
-package "Memento Pattern" {
-    class SimulationCaretaker {
-        - startMemento: SimulationMemento
-        - pauseMemento: SimulationMemento
-        + saveStartMemento(memento: SimulationMemento)
-        + savePauseMemento(memento: SimulationMemento)
-        + getStartMemento(): SimulationMemento
-        + getPauseMemento(): SimulationMemento
-    }
-
-    class SimulationMemento {
-        - machines: Map<String,Machine>
-        - queues: Map<String,Queue>
-        - products: int
-    }
-
-    class SimulationStateManager {
-        - caretaker: SimulationCaretaker
-        - machinesState: MachineStateHolder
-        - queuesState: QueueStateHolder
-        + saveInitialState()****
-        + savePauseState()
-        + restoreInitialState(products: Integer)
-        + restorePauseState()
-    }
-}
-
-package "Core Simulation" {
-    class SimulationRepository {
-        - connectionManager: ConnectionManager
-        - stateManager: SimulationStateManager
-        - executor: SimulationExecutor
-        + initialize(**config**: SimulationConfig)
-        + start()
-        + pause()
-        + resume()
-        + replay(products: int)
-    }
-
-    class ConnectionManager {
-        - factory: Factory
-        - machinesState: MachineStateHolder
-        - queuesState: QueueStateHolder
-        + createMachines(machines: List<String>)
-        + createQueues(queues: List<String>)
-        + createConnections(edges: List<Edge>)
-    }
-}
-
-' Relationships
-Publisher <|.. Machine
-Publisher <|.. Queue
-WebSocketSubscriber <|.. WebSocketService
-Cloneable <|.. Machine
-Cloneable <|.. Queue
-Cloneable <|.. Product
-
-SimulationStateManager --> SimulationCaretaker
-SimulationCaretaker --> SimulationMemento
-SimulationRepository --> SimulationStateManager
-SimulationRepository --> ConnectionManager
-ConnectionManager --> Factory
-
-Factory ..> Machine: creates
-Factory ..> Queue: creates
-Machine --> Queue: uses
-Queue --> Product: contains
-
-@enduml
-```
+<div align="center">
+    <img src="./out/backend/UML-Diagram/UML-Diagram.svg" alt="UML Diagram">
+</div>
 
 </details>
 

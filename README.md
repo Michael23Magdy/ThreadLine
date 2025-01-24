@@ -252,5 +252,5 @@ npm start
 
 | Name            | Role                    |
 | --------------- | ----------------------- |
-| Huthaifa Omar   | Backend Development     |
-| Michael Magdy   | Frontend Development    |
+| [Huthaifa Omar](https://github.com/HuzaifaOmar)   | Backend Development     |
+| [Michael Magdy](https://github.com/Michael23Magdy)   | Frontend Development    |

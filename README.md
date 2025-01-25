@@ -9,7 +9,9 @@ A real-time assembly line simulation system featuring multi-threaded processing,
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2.0-green.svg)](https://spring.io/projects/spring-boot)
 [![React](https://img.shields.io/badge/React-18.2.0-blue.svg)](https://reactjs.org/)
 
-[Demo Video](#-demo) | [Architecture](#-architecture)
+
+https://github.com/user-attachments/assets/51302356-f519-4316-bac8-fdfe13656971
+
 
 </div>
 
@@ -103,7 +105,7 @@ mvn spring-boot:run
 # Switch to frontend branch
 cd frontend
 npm install
-npm start
+npm run dev
 ```
 
 ## 👥 Team

@@ -118,7 +118,6 @@ const SimulationPage = ()=>{
         api.sendResumeSimulation();
     }
     const clearSimulation = () => {
-        setSimulationState(SimulationStates.clear);
         setNodes(initialNodes);
         setEdges([]);
         machineCounter.current = 0;

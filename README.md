@@ -10,7 +10,6 @@ A real-time assembly line simulation system featuring multi-threaded processing,
 [![React](https://img.shields.io/badge/React-18.2.0-blue.svg)](https://reactjs.org/)
 
 
-https://github.com/user-attachments/assets/51302356-f519-4316-bac8-fdfe13656971
 
 
 </div>
@@ -40,14 +39,7 @@ https://github.com/user-attachments/assets/51302356-f519-4316-bac8-fdfe13656971
 
 ## 🎥 Demo
 
-<div align="center">
-  <video controls>
-    <source src="./media/DEMO.mp4" type="video/mp4">
-    Your browser does not support the video tag.
-  </video>
-</div>
-
-</div>
+https://github.com/user-attachments/assets/51302356-f519-4316-bac8-fdfe13656971
 
 ## 🏗 Architecture
 
